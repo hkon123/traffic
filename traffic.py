@@ -1,12 +1,14 @@
 import math
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
+from matplotlib.animation import FuncAnimation
 import numpy as np
 import random
 
 class traffic(object):
 
     def __init__(self, cars,length,steps):
+        self.patches = []
         self.speeds = []
         self.cars = cars
         self.length = length
@@ -48,16 +50,31 @@ class traffic(object):
         avspeed = float(totspeed)/len(self.speeds)
         return avspeed
 
-    def tPrint(self):
+    def init(self):
+        return self.patches,
+
+    def animate(self, i):
+        for j in self.patches:
+            for k in range(len(self.road[0])):
+                if self.road[i,k] == 1:
+                    j.center=(k,0)
+        return self.patches,
+        
+    def run(self):
+        fig = plt.figure()
         ax = plt.axes()
         for j in range(len(self.road[0])):
-            for i in range(len(self.road)):
-                if self.road[i,j] == 1:
-                    ax.add_patch(patches.Circle((j,i),0.5, color='b'))
+            if self.road[0,j] == 1:
+                self.patches.append(patches.Circle((j,0),0.5, color='b', animated = True))
+        for i in self.patches:
+            ax.add_patch(i)
         plt.axis('scaled')
+        ax.set_xlim(0,100)
+        ax.set_ylim(-1,1)
         plt.title("evolution of the road")
         plt.xlabel("car position")
-        plt.ylabel("iteration")
+v        plt.ylabel("iteration")
+        anim = FuncAnimation(fig, self.animate, init_func = self.init, frames =len(self.road), repeat = False, interval = 1, blit = True)
         plt.show()
 
 class Stats(object):
@@ -109,7 +126,7 @@ def main():
     
             c=traffic(a*100,100,steps)
             c.evolve()
-            c.tPrint()
+            c.run()
             #print(c.speeds)
         elif task == 'plot':
             while True:
@@ -124,5 +141,6 @@ def main():
             b.plot()
         else:
             print("Use one of the given commands!")
+
 
 main()
